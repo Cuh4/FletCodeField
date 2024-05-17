@@ -456,19 +456,13 @@ class CodeField(flet.Container):
 # ---- // Preview
 if __name__ == "__main__":
     def main(page: flet.Page):
-        def on_click(e):
-            code_field.set_focus(not code_field.focused)
-            exec(code_field.text, globals(), locals())
-        
         page.horizontal_alignment = "center"
         page.vertical_alignment = "center"
         
         code_field = CodeField()
-        execute = flet.IconButton(icon = flet.icons.CHECK_CIRCLE_ROUNDED, on_click = on_click, autofocus = False)
-        
+
         page.add(
-            code_field,
-            # execute
+            code_field
         )
     
     flet.app(target = main)
