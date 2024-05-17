@@ -46,12 +46,14 @@ class CodeField(flet.Container):
         letter_spacing: int|float -> The spacing between letters.
         language: str -> The language to be used for syntax highlighting.
         custom_shift_mapping: dict[str, str] -> A dictionary containing keys as the index, and values as the version of the key when shift is held. Example: {"1" : "!", ...}. Omitting this argument will use the UK layout mapping.
+        on_focus: function(focused: bool) -> Called when the code field is clicked.
+        on_change: function() -> Called when the user types.
         
     Events:
-        on_focus: function(focused: bool) -> Fired when the code field is clicked.
-        on_change: function(text: str) -> Fired when the user types.
+        on_focus: function(focused: bool) -> Called when the code field is clicked.
+        on_change: function() -> Called when the user types.
     """
-    def __init__(self, text: str = "print('hello world')", code_theme: str = "obsidian", show_language_text: bool = True, language_text_color: str = flet.colors.GREY, show_line_numbers: bool = True, line_number_text_color: str = flet.colors.WHITE, allow_pasting: bool = True, show_focus_border: bool = True, focus_border_color: str = flet.colors.BLUE_400, tab_spacing: int = 4, font_size: int = 10, font: str = "Roboto Mono", letter_spacing: int|float = 0, language: str = "python", custom_shift_mapping: dict[str, str] = None):
+    def __init__(self, text: str = "print('hello world')", code_theme: str = "obsidian", show_language_text: bool = True, language_text_color: str = flet.colors.GREY, show_line_numbers: bool = True, line_number_text_color: str = flet.colors.WHITE, allow_pasting: bool = True, show_focus_border: bool = True, focus_border_color: str = flet.colors.BLUE_400, tab_spacing: int = 4, font_size: int = 10, font: str = "Roboto Mono", letter_spacing: int|float = 0, language: str = "python", custom_shift_mapping: dict[str, str] = None, on_focus: "function" = None, on_change: "function" = None):
         # // attributes
         self.text = text
         self.code_theme = code_theme
@@ -68,6 +70,12 @@ class CodeField(flet.Container):
         self.letter_spacing = letter_spacing
         self.language = language
         self.custom_shift_mapping = custom_shift_mapping
+
+        if on_focus is not None:
+            self.on_focus = on_focus
+            
+        if on_change is not None:
+            self.on_change = on_change
 
         if self.custom_shift_mapping is None:
             self.custom_shift_mapping = {
@@ -335,7 +343,7 @@ class CodeField(flet.Container):
 
     # ---- // Control Events
     """
-    Fired when the code field is focused or unfocused.
+    Called when the code field is focused or unfocused.
     
     Params:
         focus: bool -> Whether the code field has been focused or not.
@@ -344,7 +352,7 @@ class CodeField(flet.Container):
         pass
     
     """
-    Fired when the user types in the code field.
+    Called when the user types in the code field.
     """
     def on_change(self):
         pass
