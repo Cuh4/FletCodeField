@@ -105,6 +105,7 @@ class CodeField(flet.Container):
             }
         
         self.is_caps = False
+        self.mounted = False
         self.focused = False
         self.type_point = len(self.text)
         
@@ -156,32 +157,32 @@ class CodeField(flet.Container):
         # init
         super().__init__(content = self.root)
         
-    """
-    Construct a TextStyle object for the markdown.
-    
-    Returns:
-        flet.TextStyle -> The constructed TextStyle object.
-    """
     def _construct_markdown_text_style(self) -> flet.TextStyle:
+        """
+        Construct a TextStyle object for the markdown.
+        
+        Returns:
+            flet.TextStyle -> The constructed TextStyle object.
+        """
         return flet.TextStyle(font_family = self.font, size = self.font_size, letter_spacing = self.letter_spacing)
         
-    """
-    Surrounds text in a code block.
-    
-    Params:
-        text: str -> The text to surround.
-        
-    Returns:
-        str -> The text surrounded in a code block.
-    """
     def _code(self, text: str):
+        """
+        Surrounds text in a code block.
+        
+        Params:
+            text: str -> The text to surround.
+            
+        Returns:
+            str -> The text surrounded in a code block.
+        """
         filtered = text.replace("`", "\\`")
         return f"```{self.language}\n{filtered}\n```"
     
-    """
-    Set the markdown control value to self.text and update the control.
-    """
     def _update_controls(self):
+        """
+        Set the markdown control value to self.text and update the control.
+        """
         # update code markdown
         self.code_markdown.value = self._code(self.text if self.text != "" else " ") # prevent 0 width
         self.code_markdown.code_theme = self.code_theme
@@ -212,15 +213,15 @@ class CodeField(flet.Container):
             ) for line in range(1, lineCount)]
             
             self.line_numbers.update()
-        
-    """
-    Parse a key to a proper letter.
 
-    Params:
-        letter: str -> The key that was pressed.
-        isShift: bool -> Whether the shift key was pressed along with the provided key.
-    """
     def _parse_letter(self, letter: str, isShift: bool):
+        """
+        Parse a key to a proper letter.
+
+        Params:
+            letter: str -> The key that was pressed.
+            isShift: bool -> Whether the shift key was pressed along with the provided key.
+        """
         # handle enter
         if letter == "Enter":
             letter = "\n"
@@ -258,13 +259,13 @@ class CodeField(flet.Container):
         # return
         return letter.upper() if self.is_caps or isShift else letter.lower()
     
-    """
-    Set the focus of this code field.
-    
-    Params:
-        focus: bool -> Whether to focus or not.
-    """
     def set_focus(self, focus: bool):
+        """
+        Set the focus of this code field.
+        
+        Params:
+            focus: bool -> Whether to focus or not.
+        """
         # set focus
         self.focused = focus
         
@@ -275,22 +276,22 @@ class CodeField(flet.Container):
         self.code_markdown_container.border = flet.border.all(1, self.focus_border_color) if focus and self.show_focus_border else None
         self.code_markdown_container.update()
         
-    """
-    Set self.type_point.
-    
-    Params:
-        to: int -> The point to set self.type_point to.
-    """
     def set_type_point(self, to: int):
+        """
+        Set self.type_point.
+        
+        Params:
+            to: int -> The point to set self.type_point to.
+        """
         self.type_point = max(0, min(len(self.text), to))
         
-    """
-    Insert a letter into the text.
-    
-    Params:
-        letter: str -> The letter to insert.
-    """
     def insert_letter(self, letter: str):
+        """
+        Insert a letter into the text.
+        
+        Params:
+            letter: str -> The letter to insert.
+        """
         if letter == "":
             return
         
@@ -303,70 +304,80 @@ class CodeField(flet.Container):
         
         self.on_change()
         
-    """
-    Insert a word into the text.
-    
-    Params:
-        word: str -> The word to insert.
-    """
     def insert_word(self, word: str):
+        """
+        Insert a word into the text.
+        
+        Params:
+            word: str -> The word to insert.
+        """
         for letter in word:
             self.insert_letter(letter)
         
-    """
-    Remove the letter before the type_point from the text.
-    """
     def remove_letter(self):
+        """
+        Remove the letter before the type_point from the text.
+        """
         self.text = self.text[:self.type_point - 1] + self.text[self.type_point:]
         self.set_type_point(self.type_point - 1)
         self._update_controls()
         
         self.on_change()
         
-    """
-    Returns the text up to the type_point.
-    
-    Returns:
-        str -> The text up to the type_point.
-    """
     def get_text_up_to_point(self):
+        """
+        Returns the text up to the type_point.
+        
+        Returns:
+            str -> The text up to the type_point.
+        """
         return self.text[:self.type_point]
     
-    """
-    Returns the text after the type_point.
-    
-    Returns:
-        str -> The text after the type_point.
-    """
     def get_text_after_point(self):
+        """
+        Returns the text after the type_point.
+        
+        Returns:
+            str -> The text after the type_point.
+        """
         return self.text[self.type_point:]
 
     # ---- // Control Events
-    """
-    Called when the code field is focused or unfocused.
-    
-    Params:
-        focus: bool -> Whether the code field has been focused or not.
-    """
     def on_focus(self, focus: bool):
+        """
+        Called when the code field is focused or unfocused.
+        
+        Params:
+            focus: bool -> Whether the code field has been focused or not.
+        """
         pass
-    
-    """
-    Called when the user types in the code field.
-    """
+
     def on_change(self):
+        """
+        Called when the user types in the code field.
+        """
         pass
 
     # ---- // Flet Events
+    def before_update(self):
+        if not self.mounted:
+            return
+
+        self._update_controls()
+    
     def will_unmount(self):
         self.focused = False
         self.on_keyboard_input = None
+        
+        self.mounted = False
     
     def did_mount(self):
         self._update_controls()
         
         self.page.on_keyboard_event = self.on_keyboard_input
         self.page.update()
+        
+        self.mounted = True
         
     def on_container_click(self, event: flet.ControlEvent):
         self.set_focus(not self.focused)
