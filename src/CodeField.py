@@ -182,29 +182,28 @@ class CodeField(flet.Container):
         self.code_markdown.update()
         
         # update language text
-        self.language_text.value = self.language.upper()
-        self.language_text.font_family = self.font
-        self.language_text.size = self.font_size
-        self.language_text.color = self.language_text_color
-        
-        self.language_text.update()
+        if self.show_language_text:
+            self.language_text.value = self.language.upper()
+            self.language_text.font_family = self.font
+            self.language_text.size = self.font_size
+            self.language_text.color = self.language_text_color
+            
+            self.language_text.update()
         
         # update line numbers
-        if not self.show_line_numbers:
-            return
-        
-        lineCount = len(self.text.split("\n")) + 1
-        
-        self.line_numbers.controls = [flet.Text(
-            value = line,
-            size = self.font_size,
-            font_family = self.font,
-            color = self.line_number_text_color,
-            bgcolor = flet.colors.TRANSPARENT,
-            style = flet.TextStyle(height = 0) # important! prevents inaccuracy
-        ) for line in range(1, lineCount)]
-        
-        self.line_numbers.update()
+        if self.show_line_numbers:
+            lineCount = len(self.text.split("\n")) + 1
+            
+            self.line_numbers.controls = [flet.Text(
+                value = line,
+                size = self.font_size,
+                font_family = self.font,
+                color = self.line_number_text_color,
+                bgcolor = flet.colors.TRANSPARENT,
+                style = flet.TextStyle(height = 0) # important! prevents inaccuracy
+            ) for line in range(1, lineCount)]
+            
+            self.line_numbers.update()
         
     """
     Parse a key to a proper letter.
