@@ -32,6 +32,7 @@ class CodeField(flet.Container):
     
     Params:
         text: str -> The default text to display in the code field.
+        bgcolor: str -> The background color of the code field.
         code_theme: str -> The color theme to be used. Accepted values: https://flet.dev/docs/controls/markdown/#code_theme
         show_language_text: bool -> Whether to show the language text.
         language_text_color: str -> The color of the language text.
@@ -53,9 +54,10 @@ class CodeField(flet.Container):
         on_focus: function(focused: bool) -> Called when the code field is clicked.
         on_change: function() -> Called when the user types.
     """
-    def __init__(self, text: str = "print('hello world')", code_theme: str = "obsidian", show_language_text: bool = True, language_text_color: str = flet.colors.GREY, show_line_numbers: bool = True, line_number_text_color: str = flet.colors.WHITE, allow_pasting: bool = True, show_focus_border: bool = True, focus_border_color: str = flet.colors.BLUE_400, tab_spacing: int = 4, font_size: int = 10, font: str = "Roboto Mono", letter_spacing: int|float = 0, language: str = "python", custom_shift_mapping: dict[str, str] = None, on_focus: "function" = None, on_change: "function" = None):
+    def __init__(self, text: str = "print('hello world')", bgcolor: str = None, code_theme: str = "obsidian", show_language_text: bool = True, language_text_color: str = flet.colors.GREY, show_line_numbers: bool = True, line_number_text_color: str = flet.colors.WHITE, allow_pasting: bool = True, show_focus_border: bool = True, focus_border_color: str = flet.colors.BLUE_400, tab_spacing: int = 4, font_size: int = 10, font: str = "Roboto Mono", letter_spacing: int|float = 0, language: str = "python", custom_shift_mapping: dict[str, str] = None, on_focus: "function" = None, on_change: "function" = None):
         # // attributes
         self.text = text
+        self.code_bgcolor = bgcolor
         self.code_theme = code_theme
         self.show_language_text = show_language_text
         self.language_text_color = language_text_color
@@ -143,7 +145,7 @@ class CodeField(flet.Container):
         
         # code
         self.code_markdown = flet.Markdown(
-            extension_set = flet.MarkdownExtensionSet.GITHUB_FLAVORED,
+            extension_set = flet.MarkdownExtensionSet.COMMON_MARK,
             expand = True
         )
         
@@ -157,6 +159,7 @@ class CodeField(flet.Container):
         # init
         super().__init__(content = self.root)
         
+    # // Helper Methods
     def _construct_markdown_text_style(self) -> flet.TextStyle:
         """
         Construct a TextStyle object for the markdown.
@@ -164,7 +167,12 @@ class CodeField(flet.Container):
         Returns:
             flet.TextStyle -> The constructed TextStyle object.
         """
-        return flet.TextStyle(font_family = self.font, size = self.font_size, letter_spacing = self.letter_spacing)
+        return flet.TextStyle(
+            font_family = self.font,
+            size = self.font_size,
+            letter_spacing = self.letter_spacing,
+            bgcolor = self.code_bgcolor
+        )
         
     def _code(self, text: str):
         """
@@ -259,6 +267,7 @@ class CodeField(flet.Container):
         # return
         return letter.upper() if self.is_caps or isShift else letter.lower()
     
+    # // Public Methods
     def set_focus(self, focus: bool):
         """
         Set the focus of this code field.
@@ -474,13 +483,16 @@ class CodeField(flet.Container):
 # ---- // Preview
 if __name__ == "__main__":
     def main(page: flet.Page):
-        page.horizontal_alignment = "center"
-        page.vertical_alignment = "center"
+        page.bgcolor = "#141414"
         
-        code_field = CodeField()
-
         page.add(
-            code_field
+            CodeField(
+                text = "print('Hello World')",
+                language = "python",
+                font = "Cascadia Code",
+                show_language_text = False,
+                line_number_text_color = "#666666"
+            )
         )
-    
-    flet.app(target = main)
+
+    flet.app(main)
